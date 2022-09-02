@@ -1,4 +1,5 @@
 
+import 'package:c_slides_show/src/pages/slides_show_page.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
@@ -9,7 +10,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Disenos App',
-      home: (),
+      home: SlideShowPage(),
     );
   }
 }
