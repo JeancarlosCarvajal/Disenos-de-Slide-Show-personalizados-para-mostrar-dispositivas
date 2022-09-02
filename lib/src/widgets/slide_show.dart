@@ -1,52 +1,68 @@
-import 'package:c_slides_show/src/models/slider_model_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:c_slides_show/src/models/slider_model_provider.dart';
 
-class SlideShowPage extends StatelessWidget {
+// TODO: Boorar luego
+import 'package:flutter_svg/flutter_svg.dart';
+
+class SlideShow extends StatelessWidget {
+
+  final List<Widget> slides;
    
-  const SlideShowPage({Key? key}) : super(key: key);
+  const SlideShow({
+    Key? key, 
+    required this.slides
+  }) : super(key: key);
   
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (BuildContext context) => SliderModelProvider(),
-      child: Scaffold(
-        body: Center(
-           child: Column(
-             children: const [
-    
-               Expanded( // expanded toma todo el tamano disponible
-                child: _Slides()
+      create: (_) => SliderModelProvider(),    
+      child: Center(
+          child: Column(
+            children: [
+  
+              Expanded( // expanded toma todo el tamano disponible
+                child: _Slides(slides: slides)
               ),
-    
-               _Dots()
-             ],
-           )
-        ),
+  
+              _Dots(slides: slides)
+
+            ],
+          )
       ),
     );
   }
 }
 
+
 class _Dots extends StatelessWidget {
-  const _Dots({Key? key}) : super(key: key);
+
+  final List<Widget> slides; 
+
+  const _Dots({
+    Key? key, 
+    required this.slides
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    int index;
     return Container(
       width: double.infinity,
       height: 70,
-      // color: Colors.red,
+      // color: Colors.red, this.slides[0].clipBehavior.index
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
+        children: List.generate(slides.length, (index) => _Dot(index: index)) // opcion 1
+        // children: slides.asMap().entries.map((widget) => _Dot(index: widget.key)).toList(), // opcion 2.. widget.key es el index iterable
 
-          _Dot(index: 0),
-          _Dot(index: 1),
-          _Dot(index: 2),
+        //  const [ 
+        //   _Dot(index: 0),
+        //   _Dot(index: 1),
+        //   _Dot(index: 2), 
+        // ],
 
-        ],
       ),
     );
   }
@@ -67,7 +83,7 @@ class _Dot extends StatelessWidget {
       height: 12,
       margin: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
-        color: sliderModelProvider.currentPage.round() == index ? Color.fromARGB(255, 0, 42, 227) : Colors.grey,
+        color: sliderModelProvider.currentPage.round() == index ? const Color.fromARGB(255, 0, 42, 227) : Colors.grey,
         shape: BoxShape.circle
       ),
     );
@@ -75,7 +91,12 @@ class _Dot extends StatelessWidget {
 }
 
 class _Slides extends StatefulWidget {
-  const _Slides({Key? key}) : super(key: key);
+  final List<Widget> slides;
+
+  const _Slides({
+    Key? key, 
+    required this.slides
+  }) : super(key: key);
 
   @override
   State<_Slides> createState() => _SlidesState();
@@ -88,7 +109,7 @@ class _SlidesState extends State<_Slides> {
   @override
   void initState() {
     pageViewController.addListener(() {
-      print('jean pagina: ${pageViewController.page}');
+      // print('jean pagina: ${pageViewController.page}');
       // actualizar el provider
       final sliderModelProvider = Provider.of<SliderModelProvider>(context, listen: false);
       sliderModelProvider.currentPage = pageViewController.page!;
@@ -110,22 +131,18 @@ class _SlidesState extends State<_Slides> {
       child: PageView(
         controller: pageViewController,
         physics: const BouncingScrollPhysics(),
-        children: const [
-          _Slide(svg: 'assets/svgs/slide-1.svg'),
-          _Slide(svg: 'assets/svgs/slide-2.svg'),
-          _Slide(svg: 'assets/svgs/slide-3.svg'), 
-        ],
+        children: widget.slides.map((slide) => _Slide(slide: slide)).toList(),
       )
     );
   }
 }
 
 class _Slide extends StatelessWidget { 
-  final String svg;
+  final Widget slide;
   
   const _Slide({
     Key? key, 
-    required this.svg,
+    required this.slide,
   }) : super(key: key);
 
   @override
@@ -134,7 +151,7 @@ class _Slide extends StatelessWidget {
       width: double.infinity,
       height: double.infinity,
       padding: const EdgeInsets.all(30),
-      child: SvgPicture.asset(svg)
+      child: slide
     );
   }
 }

@@ -1,6 +1,6 @@
-
-import 'package:c_slides_show/src/pages/slides_show_page.dart';
 import 'package:flutter/material.dart';
+
+import 'package:c_slides_show/src/pages/slide_show_page.dart';
 
 void main() => runApp(MyApp());
 
