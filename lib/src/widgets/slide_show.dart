@@ -10,30 +10,31 @@ class SlideShow extends StatelessWidget {
   final bool puntosArriba;
   final Color colorPrimario;
   final Color colorSecundario;
+  final double? bulletPrimario;
+  final double? bulletSecundario;
+
    
   const SlideShow({
     Key? key, 
     required this.slides, 
-    this.puntosArriba    = false, 
-    this.colorPrimario   = const Color.fromARGB(255, 0, 42, 227), 
-    this.colorSecundario = Colors.grey
+    this.puntosArriba     = false, 
+    this.colorPrimario    = const Color.fromARGB(255, 0, 42, 227), 
+    this.colorSecundario  = Colors.grey, 
+    this.bulletPrimario, 
+    this.bulletSecundario
   }) : super(key: key);
   
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => SliderModelProvider(),    
-      child: Builder( // agrege el builder para poder acceder al provider y asignar los colores alli
-        builder: (BuildContext context) {
-          return SafeArea(
-            child: Center(
-                child: Column(
-                  children: puntosArriba ? arrayWidget.reversed.toList() : arrayWidget
-                )
-            ),
-          ); 
-        },
-      ),
+      child: SafeArea(
+        child: Center(
+            child: Column(
+              children: puntosArriba ? arrayWidget.reversed.toList() : arrayWidget
+            )
+        ),
+      ) 
     );
   }
 
@@ -42,7 +43,7 @@ class SlideShow extends StatelessWidget {
       Expanded( // expanded toma todo el tamano disponible
         child: _Slides(slides: slides)
       ), 
-      _Dots(slides: slides, colorPrimario: colorPrimario, colorSecundario: colorSecundario,), 
+      _Dots(slides: slides, colorPrimario: colorPrimario, colorSecundario: colorSecundario, bulletPrimario: bulletPrimario!, bulletSecundario: bulletSecundario!,), 
     ];
   }
 
@@ -51,27 +52,36 @@ class SlideShow extends StatelessWidget {
 
 class _Dots extends StatelessWidget {
 
-  final List<Widget> slides; 
+  final List<Widget> slides;  
   final Color colorPrimario;
   final Color colorSecundario;
+  final double bulletPrimario;
+  final double bulletSecundario;
 
   const _Dots({
     Key? key, 
     required this.slides, 
     required this.colorPrimario, 
-    required this.colorSecundario
+    required this.colorSecundario, 
+    required this.bulletPrimario, 
+    required this.bulletSecundario,  
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
     int index;
+    final sliderModelProvider = Provider.of<SliderModelProvider>(context);
+    sliderModelProvider.colorPrimario = colorPrimario;
+    sliderModelProvider.colorSecundario = colorSecundario;
+    sliderModelProvider.bulletPrimario = bulletPrimario;
+    sliderModelProvider.bulletSecundario = bulletSecundario;
     return Container(
       width: double.infinity,
       height: 70,
       // color: Colors.red, this.slides[0].clipBehavior.index
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(slides.length, (index) => _Dot(index: index, colorPrimario: colorPrimario, colorSecundario: colorSecundario,)) // opcion 1
+        children: List.generate(slides.length, (index) => _Dot(index: index )) // opcion 1
         // children: slides.asMap().entries.map((widget) => _Dot(index: widget.key)).toList(), // opcion 2.. widget.key es el index iterable
 
         //  const [ 
@@ -86,25 +96,23 @@ class _Dots extends StatelessWidget {
 }
 
 class _Dot extends StatelessWidget {
-  final int index;
-  final Color colorPrimario;
-  final Color colorSecundario;
+  final int index; 
   const _Dot({
     Key? key, 
     required this.index, 
-    required this.colorPrimario, 
-    required this.colorSecundario,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final sliderModelProvider = Provider.of<SliderModelProvider>(context);
-    return Container(
-      width: 12,
-      height: 12,
+    print('jean: ${sliderModelProvider.bulletPrimario}');
+    
+    return Container(  
+      width: sliderModelProvider.currentPage.round() == index ? sliderModelProvider.bulletPrimario : sliderModelProvider.bulletSecundario,
+      height: sliderModelProvider.currentPage.round() == index ? sliderModelProvider.bulletPrimario : sliderModelProvider.bulletSecundario,
       margin: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
-        color: sliderModelProvider.currentPage.round() == index ? colorPrimario : colorSecundario,
+        color: sliderModelProvider.currentPage.round() == index ? sliderModelProvider.colorPrimario : sliderModelProvider.colorSecundario,
         shape: BoxShape.circle
       ),
     );
