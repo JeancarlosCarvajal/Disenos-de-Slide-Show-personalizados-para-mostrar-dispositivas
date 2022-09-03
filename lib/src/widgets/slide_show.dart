@@ -2,47 +2,64 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:c_slides_show/src/models/slider_model_provider.dart';
 
-// TODO: Boorar luego
-import 'package:flutter_svg/flutter_svg.dart';
+// import 'package:flutter_svg/flutter_svg.dart';
 
 class SlideShow extends StatelessWidget {
 
   final List<Widget> slides;
+  final bool puntosArriba;
+  final Color colorPrimario;
+  final Color colorSecundario;
    
   const SlideShow({
     Key? key, 
-    required this.slides
+    required this.slides, 
+    this.puntosArriba    = false, 
+    this.colorPrimario   = const Color.fromARGB(255, 0, 42, 227), 
+    this.colorSecundario = Colors.grey
   }) : super(key: key);
   
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => SliderModelProvider(),    
-      child: Center(
-          child: Column(
-            children: [
-  
-              Expanded( // expanded toma todo el tamano disponible
-                child: _Slides(slides: slides)
-              ),
-  
-              _Dots(slides: slides)
-
-            ],
-          )
+      child: Builder( // agrege el builder para poder acceder al provider y asignar los colores alli
+        builder: (BuildContext context) {
+          return SafeArea(
+            child: Center(
+                child: Column(
+                  children: puntosArriba ? arrayWidget.reversed.toList() : arrayWidget
+                )
+            ),
+          ); 
+        },
       ),
     );
   }
+
+  List<Widget> get arrayWidget {
+    return [ 
+      Expanded( // expanded toma todo el tamano disponible
+        child: _Slides(slides: slides)
+      ), 
+      _Dots(slides: slides, colorPrimario: colorPrimario, colorSecundario: colorSecundario,), 
+    ];
+  }
+
 }
 
 
 class _Dots extends StatelessWidget {
 
   final List<Widget> slides; 
+  final Color colorPrimario;
+  final Color colorSecundario;
 
   const _Dots({
     Key? key, 
-    required this.slides
+    required this.slides, 
+    required this.colorPrimario, 
+    required this.colorSecundario
   }) : super(key: key);
 
   @override
@@ -54,7 +71,7 @@ class _Dots extends StatelessWidget {
       // color: Colors.red, this.slides[0].clipBehavior.index
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(slides.length, (index) => _Dot(index: index)) // opcion 1
+        children: List.generate(slides.length, (index) => _Dot(index: index, colorPrimario: colorPrimario, colorSecundario: colorSecundario,)) // opcion 1
         // children: slides.asMap().entries.map((widget) => _Dot(index: widget.key)).toList(), // opcion 2.. widget.key es el index iterable
 
         //  const [ 
@@ -70,9 +87,13 @@ class _Dots extends StatelessWidget {
 
 class _Dot extends StatelessWidget {
   final int index;
+  final Color colorPrimario;
+  final Color colorSecundario;
   const _Dot({
     Key? key, 
-    required this.index,
+    required this.index, 
+    required this.colorPrimario, 
+    required this.colorSecundario,
   }) : super(key: key);
 
   @override
@@ -83,7 +104,7 @@ class _Dot extends StatelessWidget {
       height: 12,
       margin: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
-        color: sliderModelProvider.currentPage.round() == index ? const Color.fromARGB(255, 0, 42, 227) : Colors.grey,
+        color: sliderModelProvider.currentPage.round() == index ? colorPrimario : colorSecundario,
         shape: BoxShape.circle
       ),
     );
