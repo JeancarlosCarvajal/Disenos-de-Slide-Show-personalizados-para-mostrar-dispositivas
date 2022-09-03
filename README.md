@@ -5,3 +5,5 @@ Disenos de Slide Show personalizados para mostrar dispositivas
 ## Appearance Application
   
 ![Appearance 1](appearance/movie-1.gif) 
+![Appearance 2](appearance/movie-2.gif) 
+
